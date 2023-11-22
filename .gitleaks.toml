@@ -1,0 +1,7 @@
+title = "ignore placeholders"
+
+[allowlist]
+  regexTarget = "match"
+  regexes = [
+    "PAH_TOKEN",
+  ]
