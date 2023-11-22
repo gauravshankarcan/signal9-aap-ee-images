@@ -8,7 +8,6 @@ metadata:
       substitution and then renders the context to be built in later stages
 spec:
   params:
-    - name: revision
     - name: base_image
   results:
     - name: derived-images
@@ -20,15 +19,22 @@ spec:
     - name: substitutions
       mountPath: /substitutions
   steps:
-    - name: do substitutions
+    - name: do-substitutions
       image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
       script: |
         #!/bin/bash
+        set +x
+        set +e
 
         /bin/microdnf install -y findutils
+
         cd $(workspaces.source.path)
+
+        git config --global --add safe.directory $(workspaces.source.path)
+
         for key in `ls $(workspaces.substitutions.path)`; do
-          git grep -rl $key . | xargs sed -i "s/$key/`cat $key`/g"
+          VALUE=`cat $(workspaces.substitutions.path)/$key`
+          git grep -rl $key . | xargs sed -i "s/$key/$VALUE/g"
         done
 
         cd $(workspaces.source.path)/derived
@@ -36,7 +42,7 @@ spec:
           sed -i "s/BASE_IMAGE_PH/'$(params.base_image)'/g" $derived_dir/execution-environment.yml
         done
 
-    - name: render base image
+    - name: render-base-image
       image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
       script: |
         #!/bin/bash
@@ -44,7 +50,7 @@ spec:
         cd $(workspaces.source.path)/base
         ansible-builder create -v 3
 
-    - name: render derived images
+    - name: render-derived-images
       image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
       script: |
         #!/bin/bash
@@ -56,7 +62,7 @@ spec:
           popd
         done
 
-    - name: save derived image list
+    - name: save-derived-image-list
       image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
       script: |
         #!/usr/bin/env python3
