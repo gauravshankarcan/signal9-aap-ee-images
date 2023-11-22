@@ -1,0 +1,8 @@
+---
+collections:
+  - name: arista.eos
+  - name: vyos.vyos
+  - name: cisco.nxos
+  - name: cisco.ios
+  - name: community.general
+  - name: community.network

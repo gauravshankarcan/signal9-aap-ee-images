@@ -1,0 +1,20 @@
+---
+version: 3
+images:
+  base_image:
+    name: BASE_IMAGE_PH
+
+dependencies:
+  galaxy: collections/requirements.yml
+  python: python-requirements.txt
+
+additional_build_files:
+  - src: files
+    dest: resources
+
+additional_build_steps:
+  prepend_galaxy:
+    - COPY _build/resources/ansible.cfg /etc/ansible/ansible.cfg
+
+options:
+  package_manager_path: /usr/bin/microdnf

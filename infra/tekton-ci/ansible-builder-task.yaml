@@ -1,0 +1,69 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ansible-builder-custom
+  annotations:
+    description: |
+      A task that customizes ansible-builder configs by doing variable
+      substitution and then renders the context to be built in later stages
+spec:
+  params:
+    - name: revision
+    - name: base_image
+  results:
+    - name: derived-images
+      type: array
+      description: derived image names rendered
+  workspaces:
+    - name: source
+      mountPath: /ee-source
+    - name: substitutions
+      mountPath: /substitutions
+  steps:
+    - name: do substitutions
+      image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
+      script: |
+        #!/bin/bash
+
+        /bin/microdnf install -y findutils
+        cd $(workspaces.source.path)
+        for key in `ls $(workspaces.substitutions.path)`; do
+          git grep -rl $key . | xargs sed -i "s/$key/`cat $key`/g"
+        done
+
+        cd $(workspaces.source.path)/derived
+        for derived_dir in `ls`; do
+          sed -i "s/BASE_IMAGE_PH/'$(params.base_image)'/g" $derived_dir/execution-environment.yml
+        done
+
+    - name: render base image
+      image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
+      script: |
+        #!/bin/bash
+
+        cd $(workspaces.source.path)/base
+        ansible-builder create -v 3
+
+    - name: render derived images
+      image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
+      script: |
+        #!/bin/bash
+
+        cd $(workspaces.source.path)/derived
+        for derived_dir in `ls`; do
+          pushd $derived_dir
+          ansible-builder create -v 3
+          popd
+        done
+
+    - name: save derived image list
+      image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
+      script: |
+        #!/usr/bin/env python3
+        
+        import json
+        import os
+
+        derived_list = os.listdir('$(workspaces.source.path)/derived')
+        with open('$(results.derived-images.path)', 'w') as output_file:
+            output_file.write(json.dumps(json.dumps(derived_list)))

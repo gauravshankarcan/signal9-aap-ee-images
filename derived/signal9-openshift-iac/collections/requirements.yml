@@ -1,0 +1,14 @@
+---
+collections:
+  - name: community.general
+  - name: kubernetes.core
+  - name: hpe.ilo
+  - name: netbox.netbox
+  - name: freeipa.ansible_freeipa
+  - name: https://github.com/marbindrakon/community.hashi_vault.git
+    type: git
+    version: delete_function
+  - name: amazon.aws
+  - name: openstack.cloud
+  - name: servicenow.itsm
+  - name: ansible.netcommon

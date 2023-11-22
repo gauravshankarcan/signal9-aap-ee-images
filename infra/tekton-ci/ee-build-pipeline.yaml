@@ -1,0 +1,87 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: aap-ee-image-build
+spec:
+  params:
+    - default: https://github.com/marbindrakon/signal9-aap-ee-images.git
+      name: code_repo
+      type: string
+    - default: main
+      name: git_rev
+      type: string
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: '$(params.code_repo)'
+        - name: revision
+          value: '$(params.git_rev)'
+        - name: deleteExisting
+          value: 'true'
+        - name: verbose
+          value: 'true'
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: code
+    - name: create-ee-contexts
+      params:
+        - name: base_image
+          value: quay.signal9.gg/signal9-ee-image/base-ee-image:$(params.git_rev)
+      taskRef:
+        kind: Task
+        name: ansible-builder-custom
+      workspaces:
+        - name: source
+          workspace: code
+        - name: substitutions
+          workspace: pah-secret
+    - name: base-ee-image-build
+      params:
+        - name: IMAGE
+          value: >-
+            quay.signal9.gg/signal9-ee-images/base-ee-image:$(tasks.git-clone.results.commit)
+        - name: DOCKERFILE
+          value: ./utility-images/platformio-build/Dockerfile
+        - name: CONTEXT
+          value: ./utility-images/platformio-build
+      runAfter:
+        - create-ee-contexts
+      taskRef:
+        kind: ClusterTask
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: code
+        - name: dockerconfig
+          workspace: registry-secret
+    - name: derived-ee-build
+      matrix:
+        params:
+          - name: derived-image
+            value: $(tasks.create-ee-contents.results.derived-images)
+      params:
+        - name: IMAGE
+          value: >-
+            quay.signal9.gg/signal9-ee-images/$(params.derived-image):$(tasks.git-clone.results.commit)
+        - name: DOCKERFILE
+          value: ./derived/$(params.derived-image)/context/Containerfile
+        - name: CONTEXT
+          value: ./derived/$(params.derived-image/context
+      runAfter:
+        - base-ee-image-build
+      taskRef:
+        kind: ClusterTask
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: code
+        - name: dockerconfig
+          workspace: registry-secret
+  workspaces:
+    - name: code
+    - name: registry-secret
+    - name: pah-secret
