@@ -39,7 +39,7 @@ spec:
 
         cd $(workspaces.source.path)/derived
         for derived_dir in `ls`; do
-          sed -i "s/BASE_IMAGE_PH/'$(params.base_image)'/g" $derived_dir/execution-environment.yml
+          sed -i "s#BASE_IMAGE_PH#'$(params.base_image)'#g" $derived_dir/execution-environment.yml
         done
 
     - name: render-base-image
@@ -72,4 +72,4 @@ spec:
 
         derived_list = os.listdir('$(workspaces.source.path)/derived')
         with open('$(results.derived-images.path)', 'w') as output_file:
-            output_file.write(json.dumps(json.dumps(derived_list)))
+            output_file.write(json.dumps(derived_list))

@@ -30,7 +30,7 @@ spec:
     - name: create-ee-contexts
       params:
         - name: base_image
-          value: quay.signal9.gg/signal9-ee-image/base-ee-image:$(params.git_rev)
+          value: quay.signal9.gg/signal9-ee-images/base-ee-image:$(tasks.git-clone.results.commit)
       taskRef:
         kind: Task
         name: ansible-builder-custom
@@ -39,15 +39,18 @@ spec:
           workspace: code
         - name: substitutions
           workspace: pah-secret
+      runAfter:
+        - git-clone
     - name: base-ee-image-build
       params:
         - name: IMAGE
-          value: >-
-            quay.signal9.gg/signal9-ee-images/base-ee-image:$(tasks.git-clone.results.commit)
+          value: quay.signal9.gg/signal9-ee-images/base-ee-image:$(tasks.git-clone.results.commit)
         - name: DOCKERFILE
-          value: ./utility-images/platformio-build/Dockerfile
+          value: Dockerfile
         - name: CONTEXT
-          value: ./utility-images/platformio-build
+          value: ./base/context
+        - name: BUILD_EXTRA_ARGS
+          value: --authfile /workspace/dockerconfig/config.json
       runAfter:
         - create-ee-contexts
       taskRef:
@@ -62,20 +65,21 @@ spec:
       matrix:
         params:
           - name: derived-image
-            value: $(tasks.create-ee-contents.results.derived-images)
-      params:
-        - name: IMAGE
-          value: >-
-            quay.signal9.gg/signal9-ee-images/$(params.derived-image):$(tasks.git-clone.results.commit)
-        - name: DOCKERFILE
-          value: ./derived/$(params.derived-image)/context/Containerfile
-        - name: CONTEXT
-          value: ./derived/$(params.derived-image/context
+            value: $(tasks.create-ee-contexts.results.derived-images)
+        include:
+          - name: common-values
+            params:
+              - name: registry
+                value: quay.signal9.gg/signal9-ee-images
+              - name: tag
+                value: $(tasks.git-clone.results.commit)
+              - name: BUILD_EXTRA_ARGS
+                value: --authfile /workspace/dockerconfig/config.json
       runAfter:
         - base-ee-image-build
       taskRef:
-        kind: ClusterTask
-        name: buildah
+        kind: Task
+        name: custom-buildah
       workspaces:
         - name: source
           workspace: code
