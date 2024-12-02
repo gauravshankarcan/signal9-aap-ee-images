@@ -13,8 +13,6 @@ additional_build_files:
     dest: resources
 
 additional_build_steps:
-  prepend_galaxy:
-    - COPY _build/resources/ansible.cfg /etc/ansible/ansible.cfg
   prepend_final:
     - COPY _build/resources/signal9-ca.crt /etc/pki/ca-trust/source/anchors/signal9-ca.crt
     - RUN /bin/update-ca-trust

@@ -7,13 +7,5 @@ images:
 dependencies:
   galaxy: collections/requirements.yml
 
-additional_build_files:
-  - src: files
-    dest: resources
-
-additional_build_steps:
-  prepend_galaxy:
-    - COPY _build/resources/ansible.cfg /etc/ansible/ansible.cfg
-
 options:
   package_manager_path: /usr/bin/microdnf
