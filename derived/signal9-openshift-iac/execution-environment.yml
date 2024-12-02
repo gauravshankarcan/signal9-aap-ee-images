@@ -2,7 +2,7 @@
 version: 3
 images:
   base_image:
-    name: quay.signal9.gg/signal9-ee-images/base-ee-image@sha256:30840145ec0e8fc420cabaf6e81c302e1bfab30dde805c7ea96a52141a2da2d0
+    name: BASE_IMAGE_PH
 
 dependencies:
   galaxy: collections/requirements.yml
