@@ -6,6 +6,10 @@ images:
 
 dependencies:
   galaxy: collections/requirements.yml
+  exclude:
+    all_from_collections:
+      - arista.eos
+      - vyos.vyos
 
 options:
   package_manager_path: /usr/bin/microdnf
