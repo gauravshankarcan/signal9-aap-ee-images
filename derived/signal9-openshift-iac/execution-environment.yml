@@ -2,11 +2,20 @@
 version: 3
 images:
   base_image:
-    name: BASE_IMAGE_PH
+    name: quay.signal9.gg/signal9-ee-images/base-ee-image@sha256:30840145ec0e8fc420cabaf6e81c302e1bfab30dde805c7ea96a52141a2da2d0
 
 dependencies:
   galaxy: collections/requirements.yml
   python: python-requirements.txt
+  exclude:
+    system:
+      - openshift-clients
+    all_from_collections:
+      - amazon.aws
+
+additional_build_steps:  
+  prepend_final:
+    - "RUN curl -LO https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/stable/openshift-client-linux-amd64-rhel8.tar.gz && tar -C /usr/local/bin -xf openshift-client-linux-amd64-rhel8.tar.gz && rm -f openshift-client-linux-amd64-rhel8.tar.gz"
 
 options:
   package_manager_path: /usr/bin/microdnf
