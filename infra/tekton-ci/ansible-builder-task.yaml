@@ -20,7 +20,7 @@ spec:
       mountPath: /substitutions
   steps:
     - name: do-substitutions
-      image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
+      image: registry.redhat.io/ansible-automation-platform-25/ansible-builder-rhel9:latest
       script: |
         #!/bin/bash
         set +x
@@ -43,7 +43,7 @@ spec:
         done
 
     - name: render-base-image
-      image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
+      image: registry.redhat.io/ansible-automation-platform-25/ansible-builder-rhel9:latest
       script: |
         #!/bin/bash
 
@@ -51,7 +51,7 @@ spec:
         ansible-builder create -v 3
 
     - name: render-derived-images
-      image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
+      image: registry.redhat.io/ansible-automation-platform-25/ansible-builder-rhel9:latest
       script: |
         #!/bin/bash
 
@@ -63,7 +63,7 @@ spec:
         done
 
     - name: save-derived-image-list
-      image: registry.redhat.io/ansible-automation-platform-24/ansible-builder-rhel9:latest
+      image: registry.redhat.io/ansible-automation-platform-25/ansible-builder-rhel9:latest
       script: |
         #!/usr/bin/env python3
         
