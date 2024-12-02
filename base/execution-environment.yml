@@ -6,7 +6,6 @@ images:
 
 dependencies:
   galaxy: collections/requirements.yml
-  python: python-requirements.txt
 
 additional_build_files:
   - src: files
