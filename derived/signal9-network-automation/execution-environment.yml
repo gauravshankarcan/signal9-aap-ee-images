@@ -10,6 +10,7 @@ dependencies:
     all_from_collections:
       - arista.eos
       - vyos.vyos
+      - collection community.network
 
 options:
   package_manager_path: /usr/bin/microdnf
