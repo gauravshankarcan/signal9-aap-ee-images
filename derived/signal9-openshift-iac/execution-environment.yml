@@ -16,6 +16,7 @@ dependencies:
 additional_build_steps:  
   prepend_final:
     - "RUN curl -LO https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/stable/openshift-client-linux-amd64-rhel8.tar.gz && tar -C /usr/local/bin -xf openshift-client-linux-amd64-rhel8.tar.gz && rm -f openshift-client-linux-amd64-rhel8.tar.gz"
+    - "RUN curl -LO https://mirror.openshift.com/pub/openshift-v4/amd64/clients/ocp/stable/ccoctl-linux-rhel8.tar.gz && tar -C /usr/local/bin -xf ccoctl-linux-rhel8.tar.gz && rm -f ccoctl-linux-rhel8.tar.gz"
 
 options:
   package_manager_path: /usr/bin/microdnf
